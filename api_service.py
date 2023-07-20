@@ -1,7 +1,13 @@
 import json
-
+import os
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+from dotenv import load_dotenv
+load_dotenv(override=True)
 
+siteSettings = {"master": "http://ncuaiot.ap-northeast-1.elasticbeanstalk.com/", "dev": "http://ncuaiot-dev.ap-northeast-1.elasticbeanstalk.com/", "sup": "https://sup.xraihealth.com/", "www": "www.xraihealth.com/",
+                "0407602": "majie.xraihealth.com/", "04189271": "ndmc.xraihealth.com/", "demo": "demo.xraihealth.com/", "develop": "develop.xraihealth.com/", "sports": "sports.xraihealth.com/"}
 
 class APIService:
 
@@ -14,18 +20,34 @@ class APIService:
         self.aimodel = "http://ip-172-31-45-198.ap-northeast-1.compute.internal/"
         self.endpoint = ''
 
+    def setEndpoint_new(self, folderName,motion_data_id):
+    
+        self.endpoint = self.dev if 'dev' in folderName else self.master
+        login_content = {
+            "username": os.getenv("sup_username"),
+            "password": os.getenv("sup_password")
+        }
+        try:
+            login_api = requests.post(
+                f'{siteSettings["sup"]}api/authenticate/login', json=login_content,verify=False)
+            token = login_api.json()['token']
+            self.headers = {"Authorization": f'Bearer {token}'}
+            site_id = requests.get(f'{siteSettings["sup"]}api/MotiondataGet/single?id={motion_data_id}', headers=self.headers,verify=False).json()['SiteId']
+            self.endpoint = siteSettings[site_id]
+            print(self.endpoint)
+        except requests.exceptions.RequestException as e:
+            print(e)
+            raise ('login failed')
+        self.login()
     def setEndpoint(self, folderName):
-        if 'dev' in folderName:
-            self.endpoint = self.dev
-        else:
-            self.endpoint = self.master
+        self.endpoint = self.dev if 'dev' in folderName else self.master
         print('endpoint= ', self.endpoint)
         self.login()
 
     def login(self):
         login_content = {
-            "password": "",
-            "username": ""
+            "password": os.getenv("password"),
+            "username": os.getenv("username")
         }
         try:
             login_api = requests.post(
@@ -80,3 +102,4 @@ class APIService:
                               json=ai_score_content, headers=self.headers)
         except requests.exceptions.RequestException as e:
             raise ('insert ai score failed')
+# APIService().setEndpoint_new('master', 5)
