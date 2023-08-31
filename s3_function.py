@@ -40,7 +40,7 @@ class S3Function:
         try:
             # 上傳圖片到S3
             self.s3_client.upload_file(local_directory, bucket_name, picture_name)
-            print("Upload Successful")
+            print("Upload Picture to S3 Successful")
             return True
         except FileNotFoundError:
             print("The file was not found")
