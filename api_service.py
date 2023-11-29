@@ -13,10 +13,10 @@ class APIService:
 
     def __init__(self) -> None:
         self.headers = ''
-        self.master = "http://ncuaiot.ap-northeast-1.elasticbeanstalk.com/"
-        # self.master = "http://ip-172-31-32-214.ap-northeast-1.compute.internal/"
-        self.dev = "http://ncuaiot-dev.ap-northeast-1.elasticbeanstalk.com/"
-        # self.dev = "http://ip-172-31-13-231.ap-northeast-1.compute.internal/"
+        #self.master = "http://ncuaiot.ap-northeast-1.elasticbeanstalk.com/"
+        self.master = "http://ip-172-31-45-19.ap-northeast-1.compute.internal/"
+        #self.dev = "http://ncuaiot-dev.ap-northeast-1.elasticbeanstalk.com/"
+        self.dev = "http://ip-172-31-13-170.ap-northeast-1.compute.internal/"
         self.aimodel = "http://ip-172-31-45-198.ap-northeast-1.compute.internal/"
         self.endpoint = ''
     def login(self):
@@ -34,24 +34,28 @@ class APIService:
         except requests.exceptions.HTTPError as e:
             raise (e)
         
-    def setEndpoint_new(self, folderName,motion_data_id):
-        sup_endpoint = siteSettings["supdev"] if 'dev' in folderName else siteSettings["sup"]
-        sup_login_content = {
-            "username": os.getenv("sup_username"),
-            "password": os.getenv("sup_password")
-        }
+    # def setEndpoint_old(self, folderName,motion_data_id):
+    #     sup_endpoint = siteSettings["supdev"] if 'dev' in folderName else siteSettings["sup"]
+    #     sup_login_content = {
+    #         "username": os.getenv("sup_username"),
+    #         "password": os.getenv("sup_password")
+    #     }
 
-        try:
-            login_api = requests.post(
-                f'{siteSettings["sup"]}api/authenticate/login', json=sup_login_content,verify=False)
-            token = login_api.json()['token']
-            self.headers = {"Authorization": f'Bearer {token}'}
-            site_id = requests.get(f'{sup_endpoint}api/MotiondataGet/{motion_data_id}', headers=self.headers,verify=False).json()['SiteId']
-            self.endpoint = siteSettings[site_id]
-            login_api.raise_for_status()
-            self.login()
-        except requests.exceptions.HTTPError as e:
-            raise (e)
+    #     try:
+    #         login_api = requests.post(
+    #             f'{sup_endpoint}api/authenticate/login', json=sup_login_content,verify=False)
+    #         token = login_api.json()['token']
+    #         self.headers = {"Authorization": f'Bearer {token}'}
+    #         #print(requests.get(f'{sup_endpoint}api/MotiondataGet/{motion_data_id}', headers=self.headers,verify=False).json())
+    #         site_id = requests.get(f'{sup_endpoint}api/MotiondataGet/{motion_data_id}', headers=self.headers,verify=False).json()['SiteId']
+    #         self.endpoint = siteSettings[site_id]
+    #         login_api.raise_for_status()
+    #         self.login()
+    #     except requests.exceptions.HTTPError as e:
+    #         raise (e)
+        
+
+
     def setEndpoint(self, folderName):
         self.endpoint = self.dev if 'dev' in folderName else self.master
         self.login()

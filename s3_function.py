@@ -10,14 +10,23 @@ class S3Function:
         self.s3_resource = boto3.resource("s3")
         self.s3_client = boto3.client("s3")
         return
-
+    
+    def get_data_from_S3(self, bucket, file_path):
+        print('Reading File ...' + file_path)
+        file_name = file_path.split('/')[-1]
+        directory = "/tmp/" + file_name
+        self.s3_resource.Bucket(bucket).download_file(file_path, directory)
+        return directory
+    
     def get_data_json_from_S3(self, bucket, file_path):
+        print('Reading File ...' + file_path)
         file_name = file_path.split('/')[-1]
         directory = "/tmp/" + file_name
         self.s3_resource.Bucket(bucket).download_file(file_path, directory)
         return directory
 
     def get_data_csv_from_s3(self, bucket, file_path):
+        print('Reading File ...' + file_path)
         file_name = file_path.split('/')[-1]
         directory = "/tmp/" + file_name
         self.s3_resource.Bucket(bucket).download_file(file_path, directory)
